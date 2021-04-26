@@ -1,0 +1,124 @@
+﻿@{
+    ViewData["Title"] = "Beer Service";
+
+    String env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+    String mongoDbUrl = Environment.GetEnvironmentVariable("MONGODB_URL");
+}
+
+@section scripts
+{
+    <script>
+    
+   $(function () {
+
+       var dataType = 'application/json; charset=utf-8';
+
+        $.ajax({
+            type: "GET",
+            url: "api/build",
+            contentType: dataType,
+            success: function (data){
+                console.log(data)
+                $('#version').text(data.version);
+                $('#branche').text(data.branche);
+                $('#tag').text(data.tag);
+                $('#baseTag').text(data.baseTag);
+                $('#comit').text(data.commit);
+                $('#comitDate').text(data.commitDate);
+                $('#sha').text(data.sha);
+
+                $('#conf_spinner').hide();
+
+            },
+            failure: function(errMsg) {
+                console.error(errMsg);
+            }
+        });
+       
+
+   })
+
+    
+       
+    
+    </script>
+
+}
+
+<div class="text-center">
+   
+    <h4>Variable d'environnements</h4>
+</div>
+
+<table class="table table-hover">
+ 
+  <tbody>
+    <tr>
+      <td scope="row" ><strong>ASPNETCORE_ENVIRONMENT</strong></td>
+      @if (env == null)
+    {
+        <td><em>Indéfini</em></td>
+    }else{
+        <td><em>@env</em></td>
+    }
+    </tr>
+
+    <tr>
+      <td scope="row"><strong>MONGODB_URL</strong></td>
+      @if (mongoDbUrl == null)
+    {
+        <td><em>Indéfini</em></td>
+    }else{
+        <td><em>@mongoDbUrl</em></td>
+    }
+    </tr>
+    
+  </tbody>
+</table>
+
+<div class="text-center">
+    <h4>BuildInfo</h4>
+</div>
+
+<table class="table table-hover">
+    <tbody>
+        <tr>
+            <td scope="row"><strong>Branche</strong></td>
+            <td id=*branche* scope="row"><em>[Branche]</em></td>
+        </tr>
+        <tr>
+            <td scope="row"><strong>Version<strong></td>
+            <td id="version" scope="row"><em>[Version]</em></td>
+        </tr>
+        <tr>
+            <td scope="row"><strong>Tag</strong></td>
+            <td id="version" scope="row"><em>[Tag]</em></td>
+        </tr>
+        <tr>
+            <td scope="row"><strong>Base Tag</strong></td>
+            <td id="version" scope="row"><em>[BAse Tag]</em></td>
+        </tr>
+
+        <tr>
+            <td scope="row"><strong>Comit</strong></td>
+            <td id="version" scope="row"><em>[Comit]</em></td>
+        </tr>
+        <tr>
+            <td scope="row"><strong>SHA</strong></td>
+            <td id="version" scope="row"><em>[SHA]</em></td>
+        </tr>
+        <tr>
+            <td scope="row"><strong>Date</strong></td>
+            <td id="comitDate" scope="row"><em>[Date]</em></td>
+        </tr>
+
+    </tbody>
+</table>
+
+<div id="conf_spinner" class="spinner-border" role="status">
+  <span class="sr-only">Loading...</span>
+</div>
+
+</div>
+
+
