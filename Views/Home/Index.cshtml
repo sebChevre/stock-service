@@ -20,6 +20,7 @@
             success: function (data){
                 console.log(data)
                 $('#version').text(data.version);
+                $('#semversion').text(data.semVer);
                 $('#branche').text(data.branche);
                 $('#tag').text(data.tag);
                 $('#baseTag').text(data.baseTag);
@@ -57,9 +58,9 @@
       <td scope="row" ><strong>ASPNETCORE_ENVIRONMENT</strong></td>
       @if (env == null)
     {
-        <td><em>Indéfini</em></td>
+        <td scope="row"><em>Indéfini</em></td>
     }else{
-        <td><em>@env</em></td>
+        <td scope="row"><em>@env</em></td>
     }
     </tr>
 
@@ -67,9 +68,9 @@
       <td scope="row"><strong>MONGODB_URL</strong></td>
       @if (mongoDbUrl == null)
     {
-        <td><em>Indéfini</em></td>
+        <td scope="row"><em>Indéfini</em></td>
     }else{
-        <td><em>@mongoDbUrl</em></td>
+        <td scope="row"><em>@mongoDbUrl</em></td>
     }
     </tr>
     
@@ -92,20 +93,20 @@
         </tr>
         <tr>
             <td scope="row"><strong>Tag</strong></td>
-            <td id="version" scope="row"><em>[Tag]</em></td>
+            <td id="tag" scope="row"><em>[Tag]</em></td>
         </tr>
         <tr>
             <td scope="row"><strong>Base Tag</strong></td>
-            <td id="version" scope="row"><em>[BAse Tag]</em></td>
+            <td id="baseTag" scope="row"><em>[BAse Tag]</em></td>
         </tr>
 
         <tr>
             <td scope="row"><strong>Comit</strong></td>
-            <td id="version" scope="row"><em>[Comit]</em></td>
+            <td id="comit" scope="row"><em>[Comit]</em></td>
         </tr>
         <tr>
             <td scope="row"><strong>SHA</strong></td>
-            <td id="version" scope="row"><em>[SHA]</em></td>
+            <td id="sha" scope="row"><em>[SHA]</em></td>
         </tr>
         <tr>
             <td scope="row"><strong>Date</strong></td>

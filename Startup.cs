@@ -1,14 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using BeerApi.Services;
 using BeerApi.Services.Impl;
 using BeerApi.Infrastructure.Configuration;
@@ -16,8 +10,8 @@ using Microsoft.Extensions.Options;
 using BeerApi.Infrastructure;
 using BeerApi.Infrastructure.Impl;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http;
+using Prometheus;
 
 
 namespace BeerApi
@@ -72,6 +66,11 @@ namespace BeerApi
 
             app.UseStaticFiles();
 
+            //prometeheus endpoint
+            app.UseMetricServer();
+            app.UseHttpMetrics();
+            ConfigurePrometheus(app);
+
             app.UseExceptionHandler(c => c.Run(async context =>
             {
                 var exception = context.Features
@@ -104,6 +103,18 @@ namespace BeerApi
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "beer-service v" + ThisAssembly.Git.SemVer.Major + "." + ThisAssembly.Git.SemVer.Minor + "." + ThisAssembly.Git.SemVer.Patch);
+            });
+        }
+
+        private static void ConfigurePrometheus(IApplicationBuilder app)
+        {
+            var counter = Metrics.CreateCounter("pipedream_api_count", "Counts requests to the Pipedream API endpoints", new CounterConfiguration{
+            LabelNames = new[] { "method", "endpoint" }
+            });
+            
+            app.Use((context, next) =>{
+                counter.WithLabels(context.Request.Method, context.Request.Path).Inc();
+                return next();
             });
         }
     }
