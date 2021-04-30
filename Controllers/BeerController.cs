@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using BeerApi.Services;
 using BeerApi.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BeerApi.Controllers
 {
@@ -25,6 +26,7 @@ namespace BeerApi.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "reader")]
         public List<Beer> GetAllBeers()
         {
             _logger.LogInformation("GetAllBeers called");
@@ -34,6 +36,7 @@ namespace BeerApi.Controllers
 
         [HttpGet]
         [Route("{id}")]
+        [Authorize(Policy = "reader")]
         public IActionResult GetBeerById(string id)
         {
             _logger.LogInformation("GetBeerById called, with id: " + id);
@@ -47,6 +50,7 @@ namespace BeerApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "contributor")]
         public IActionResult CreateBeer(Beer beer){
             _logger.LogInformation("CreateBeer called, with object: {}",beer);
             _beerService.CreateBeer(beer);
@@ -55,6 +59,7 @@ namespace BeerApi.Controllers
 
         [HttpPut]
         [Route("{id}")]
+        [Authorize(Policy = "contributor")]
         public IActionResult UpdateBeer(Beer beer, String id){
             _logger.LogInformation("UpdateBeer called, with object: {} for id: {}",beer,id);
             _beerService.UpdateBeer(beer,id);
@@ -63,6 +68,7 @@ namespace BeerApi.Controllers
 
         [HttpDelete]
         [Route("{id}")]
+        [Authorize(Policy = "contributor")]
         public IActionResult  DeleteBeer(String id){
             _logger.LogInformation("DeletBeer called, for id: {}",id);
             _beerService.DeleteBeer(id);

@@ -14,7 +14,9 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Jwt:Authority":"http://localhost:8080/auth/realms/beer-service",
+        "Jwt:Audience":"external-client"
       }
     },
     "beer_service_2": {
@@ -24,7 +26,10 @@
       "launchUrl": "swagger",
       "applicationUrl": "https://localhost:5001;http://localhost:5000",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Jwt:Authority":"http://localhost:8080/auth/realms/beer-service",
+        "Jwt:Audience":"external-client"
+
       }
     }
   }

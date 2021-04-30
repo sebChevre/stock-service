@@ -12,15 +12,21 @@ using BeerApi.Infrastructure.Impl;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Prometheus;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System;
+
 
 
 namespace BeerApi
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+         public IWebHostEnvironment Environment { get; }
+
+        public Startup(IWebHostEnvironment env,IConfiguration configuration)
         {
             Configuration = configuration;
+            Environment = env;
         }
 
         public IConfiguration Configuration { get; }
@@ -28,6 +34,7 @@ namespace BeerApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            
             //DI services
             services.AddSingleton<BeerService, BeerServiceImpl>();
 
@@ -36,9 +43,46 @@ namespace BeerApi
 
             services.AddControllersWithViews();
             services.AddControllers();
-            
+
             ConfigureDataBaseSettings(services);
 
+            ConfigureAuthentification(services);
+
+        }
+
+        private void ConfigureAuthentification(IServiceCollection services)
+        {
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(o =>
+            {
+                o.Authority = Configuration["Jwt:Authority"];
+                o.Audience = Configuration["Jwt:Audience"];
+                o.RequireHttpsMetadata = false;
+                o.Events = new JwtBearerEvents()
+                {
+                    OnAuthenticationFailed = c =>
+                    {
+                        c.NoResult();
+
+                        c.Response.StatusCode = 500;
+                        c.Response.ContentType = "text/plain";
+                        if (Environment.IsDevelopment())
+                        {
+                            return c.Response.WriteAsync(c.Exception.ToString());
+                        }
+                        return c.Response.WriteAsync("An error occured processing your authentication.");
+                    }
+                };
+            });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("reader", policy => policy.RequireClaim("user_roles", "reader"));
+                options.AddPolicy("contributor", policy => policy.RequireClaim("user_roles", "contributor"));
+            });
         }
 
         private void ConfigureDataBaseSettings(IServiceCollection services)
@@ -82,6 +126,7 @@ namespace BeerApi
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
            app.UseEndpoints(endpoints =>
