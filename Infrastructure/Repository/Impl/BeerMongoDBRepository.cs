@@ -1,11 +1,11 @@
 using BeerApi.Models;
 using MongoDB.Driver;
 using System.Collections.Generic;
-using BeerApi.Infrastructure.MongoDB;
+using BeerApi.Infrastructure.Repository.Impl.MongoDB;
 using BeerApi.Infrastructure.Configuration;
 using MongoDB.Bson;
 
-namespace BeerApi.Infrastructure.Impl
+namespace BeerApi.Infrastructure.Repository.Impl
 {
 
     public class BeerMongDBRepository : BeerRepository 

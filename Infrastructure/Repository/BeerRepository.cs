@@ -2,7 +2,7 @@ using BeerApi.Models;
 using MongoDB.Driver;
 using System.Collections.Generic;
 
-namespace BeerApi.Infrastructure{
+namespace BeerApi.Infrastructure.Repository{
 
     public interface BeerRepository{
 

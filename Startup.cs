@@ -7,13 +7,17 @@ using BeerApi.Services;
 using BeerApi.Services.Impl;
 using BeerApi.Infrastructure.Configuration;
 using Microsoft.Extensions.Options;
-using BeerApi.Infrastructure;
-using BeerApi.Infrastructure.Impl;
+using BeerApi.Infrastructure.Repository;
+using BeerApi.Infrastructure.Repository.Impl;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Prometheus;
+using BeerApi.Infrastructure.Messaging;
+using BeerApi.Infrastructure.Messaging.Impl;
+using BeerApi.Infrastructure.Messaging.Impl.RabbitMq;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System;
+
 
 
 
@@ -35,12 +39,13 @@ namespace BeerApi
         public void ConfigureServices(IServiceCollection services)
         {
             
-            //DI services
+            //DI business services
             services.AddSingleton<BeerService, BeerServiceImpl>();
 
             //DI Repos
             services.AddSingleton<BeerRepository, BeerMongDBRepository>();
-
+            services.AddSingleton<MessagingService, RabbitMqMessagingService>();
+            
             services.AddControllersWithViews();
             services.AddControllers();
 
@@ -129,12 +134,12 @@ namespace BeerApi
             app.UseAuthentication();
             app.UseAuthorization();
 
-           app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
-            });
+            app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapControllerRoute(
+                        name: "default",
+                        pattern: "{controller=Home}/{action=Index}/{id?}");
+                });
 
         }
 
@@ -153,7 +158,7 @@ namespace BeerApi
 
         private static void ConfigurePrometheus(IApplicationBuilder app)
         {
-            var counter = Metrics.CreateCounter("pipedream_api_count", "Counts requests to the Pipedream API endpoints", new CounterConfiguration{
+            var counter = Metrics.CreateCounter("call_api_count", "Counts requests to the API endpoints", new CounterConfiguration{
             LabelNames = new[] { "method", "endpoint" }
             });
             

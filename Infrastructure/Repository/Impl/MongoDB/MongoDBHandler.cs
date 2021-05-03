@@ -8,7 +8,7 @@ using MongoDB.Driver;
 
 using BeerApi.Infrastructure.Configuration;
 
-namespace BeerApi.Infrastructure.MongoDB
+namespace BeerApi.Infrastructure.Repository.Impl.MongoDB
 {
     public class MongoDBHandler
     {
