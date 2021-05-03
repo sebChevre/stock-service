@@ -43,7 +43,7 @@ namespace BeerApi.Controllers
             Beer beer = _beerService.GetBeer(id);
 
             if(beer == null){
-                return NotFound("/api/beer/" + beer.Id);
+                return NotFound("/api/beer/" + id);
             }
 
             return Ok(beer);
