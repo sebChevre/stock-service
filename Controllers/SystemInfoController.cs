@@ -49,7 +49,8 @@ namespace BeerApi.Controllers
                     CommitDate = ThisAssembly.Git.CommitDate,
                     Tag = ThisAssembly.Git.Tag,
                     Sha = ThisAssembly.Git.Sha,
-                    Version = ThisAssembly.Git.SemVer.Major + "." + ThisAssembly.Git.SemVer.Minor + "." + ThisAssembly.Git.SemVer.Patch
+                    Version = ThisAssembly.Git.SemVer.Major + "." + ThisAssembly.Git.SemVer.Minor + "." + ThisAssembly.Git.SemVer.Patch,
+                    SemVer = ThisAssembly.Git.SemVer.Label
                 };
         }
     }

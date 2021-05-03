@@ -1,14 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using BeerApi.Services;
 using BeerApi.Services.Impl;
 using BeerApi.Infrastructure.Configuration;
@@ -16,17 +10,23 @@ using Microsoft.Extensions.Options;
 using BeerApi.Infrastructure;
 using BeerApi.Infrastructure.Impl;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http;
+using Prometheus;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System;
+
 
 
 namespace BeerApi
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+         public IWebHostEnvironment Environment { get; }
+
+        public Startup(IWebHostEnvironment env,IConfiguration configuration)
         {
             Configuration = configuration;
+            Environment = env;
         }
 
         public IConfiguration Configuration { get; }
@@ -34,6 +34,7 @@ namespace BeerApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            
             //DI services
             services.AddSingleton<BeerService, BeerServiceImpl>();
 
@@ -42,9 +43,46 @@ namespace BeerApi
 
             services.AddControllersWithViews();
             services.AddControllers();
-            
+
             ConfigureDataBaseSettings(services);
 
+            ConfigureAuthentification(services);
+
+        }
+
+        private void ConfigureAuthentification(IServiceCollection services)
+        {
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(o =>
+            {
+                o.Authority = Configuration["Jwt:Authority"];
+                o.Audience = Configuration["Jwt:Audience"];
+                o.RequireHttpsMetadata = false;
+                o.Events = new JwtBearerEvents()
+                {
+                    OnAuthenticationFailed = c =>
+                    {
+                        c.NoResult();
+
+                        c.Response.StatusCode = 500;
+                        c.Response.ContentType = "text/plain";
+                        if (Environment.IsDevelopment())
+                        {
+                            return c.Response.WriteAsync(c.Exception.ToString());
+                        }
+                        return c.Response.WriteAsync("An error occured processing your authentication.");
+                    }
+                };
+            });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("reader", policy => policy.RequireClaim("user_roles", "reader"));
+                options.AddPolicy("contributor", policy => policy.RequireClaim("user_roles", "contributor"));
+            });
         }
 
         private void ConfigureDataBaseSettings(IServiceCollection services)
@@ -72,6 +110,11 @@ namespace BeerApi
 
             app.UseStaticFiles();
 
+            //prometeheus endpoint
+            app.UseMetricServer();
+            app.UseHttpMetrics();
+            ConfigurePrometheus(app);
+
             app.UseExceptionHandler(c => c.Run(async context =>
             {
                 var exception = context.Features
@@ -83,6 +126,7 @@ namespace BeerApi
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
            app.UseEndpoints(endpoints =>
@@ -104,6 +148,18 @@ namespace BeerApi
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "beer-service v" + ThisAssembly.Git.SemVer.Major + "." + ThisAssembly.Git.SemVer.Minor + "." + ThisAssembly.Git.SemVer.Patch);
+            });
+        }
+
+        private static void ConfigurePrometheus(IApplicationBuilder app)
+        {
+            var counter = Metrics.CreateCounter("pipedream_api_count", "Counts requests to the Pipedream API endpoints", new CounterConfiguration{
+            LabelNames = new[] { "method", "endpoint" }
+            });
+            
+            app.Use((context, next) =>{
+                counter.WithLabels(context.Request.Method, context.Request.Path).Inc();
+                return next();
             });
         }
     }

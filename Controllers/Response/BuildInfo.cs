@@ -15,6 +15,8 @@ namespace BeerApi.Controllers.Response
            public String Tag {get; set;}
            public String Sha {get; set;}
           public String Version {get; set;}
+
+          public String SemVer {get; set;}
        
     }
 }

@@ -31,7 +31,7 @@ namespace BeerApi.Infrastructure.Impl
 
             //|| !id.Equals(beer.Id
             if(getBiereById(id) == null){
-                throw new System.ArgumentOutOfRangeException("No entity found with id :" + beer.Id);
+                throw new System.ArgumentOutOfRangeException("No entity found with id :" + id);
             }
             
 
@@ -39,6 +39,11 @@ namespace BeerApi.Infrastructure.Impl
         }
 
          public void DeleteBeer(string id){
+
+             if(getBiereById(id) == null){
+                throw new System.ArgumentOutOfRangeException("No entity found with id :" + id);
+            }
+
             _beers.DeleteOne(b=> b.Id == id);
         }
 
