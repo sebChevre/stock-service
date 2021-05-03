@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using BeerApi.Models;
-using BeerApi.Infrastructure;
+using BeerApi.Infrastructure.Repository;
+using BeerApi.Infrastructure.Messaging;
 
 namespace BeerApi.Services.Impl
 {
@@ -8,15 +9,20 @@ namespace BeerApi.Services.Impl
     {
         
         private readonly BeerRepository _beerRepository;
+        private readonly MessagingService _messagingService;
 
-        public BeerServiceImpl(BeerRepository beerRepository){
+        public BeerServiceImpl(BeerRepository beerRepository,MessagingService messagingService){
             _beerRepository = beerRepository;
+            _messagingService = messagingService;
+
         }
         public List<Beer> GetAllBeers(){
             return _beerRepository.GetAllBeers();
         }
         public Beer CreateBeer(Beer beer){
-            return _beerRepository.CreateBeer(beer);
+            Beer b = _beerRepository.CreateBeer(beer);
+            _messagingService.Send(beer.Id); 
+            return b;
         }
 
         public void UpdateBeer(Beer beer, string id){

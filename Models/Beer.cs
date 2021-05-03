@@ -26,7 +26,7 @@ namespace BeerApi.Models
 
         public override string ToString()
         {
-            return ",beerName:"+BeerName+",price:"+Price+",category:"+Category+",manufacturer:"+Manufacturer;
+            return "beerName:"+BeerName+",price:"+Price+",category:"+Category+",manufacturer:"+Manufacturer;
         }
     }
 }
