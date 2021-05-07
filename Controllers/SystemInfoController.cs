@@ -2,20 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using BeerApi.Infrastructure.Configuration;
-using BeerApi.Controllers.Response;
+using StockApi.Infrastructure.Configuration;
+using StockApi.Controllers.Response;
 
 
 
-namespace BeerApi.Controllers
+namespace StockApi.Controllers
 {
     [ApiController]
     [Route("/api/sysinfo")]
     public class SystemInfoController : ControllerBase
     {
 
-        IBeerstoreDatabaseSettings _settings;
-        public SystemInfoController(IBeerstoreDatabaseSettings settings){
+        IStockstoreDatabaseSettings _settings;
+        public SystemInfoController(IStockstoreDatabaseSettings settings){
             _settings = settings;
         }
 

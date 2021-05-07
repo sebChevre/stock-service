@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 
-namespace BeerApi.Controllers
+namespace StockApi.Controllers
 {
     public class HomeController : Controller
     {
@@ -24,11 +24,6 @@ namespace BeerApi.Controllers
         }
 
         public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        public IActionResult Pipedream()
         {
             return View();
         }

@@ -1,24 +1,20 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 
-using BeerApi.Infrastructure.Configuration;
+using StockApi.Infrastructure.Configuration;
 
-namespace BeerApi.Infrastructure.MongoDB
+namespace StockApi.Infrastructure.MongoDB
 {
     public class MongoDBHandler
     {
     
         private readonly MongoClient _client;
-        IBeerstoreDatabaseSettings _settings;
+        IStockstoreDatabaseSettings _settings;
         IMongoDatabase _dataBase;
 
         string _mongoUrl;
-        public MongoDBHandler(IBeerstoreDatabaseSettings settings)
+        public MongoDBHandler(IStockstoreDatabaseSettings settings)
         {
             _mongoUrl =  Environment.GetEnvironmentVariable("MONGODB_URL");
             

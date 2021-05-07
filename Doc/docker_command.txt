@@ -1,5 +1,5 @@
 # reseau
-docker network create beerservice-network
+docker network create StockService-network
 
 # mongo api
 docker run -p 9999:80
@@ -10,7 +10,7 @@ docker run -p 9999:80
 	--network mongoapi sebchevre/mongoapi:1.3
 
 # mongodb	
-docker run -p 27017:27017 --network beerservice-network --name mongodb mongo
+docker run -p 27017:27017 --network StockService-network --name mongodb mongo
 
 # keycloak
 docker run --name keycloak -p 8080:8080 -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=pass jboss/keycloak

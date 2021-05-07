@@ -3,21 +3,21 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using BeerApi.Services;
-using BeerApi.Services.Impl;
-using BeerApi.Infrastructure.Configuration;
+using StockApi.Services;
+using StockApi.Services.Impl;
+using StockApi.Infrastructure.Configuration;
 using Microsoft.Extensions.Options;
-using BeerApi.Infrastructure;
-using BeerApi.Infrastructure.Impl;
+using StockApi.Infrastructure;
+using StockApi.Infrastructure.Impl;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Prometheus;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System;
 
 
 
-namespace BeerApi
+
+namespace StockApi
 {
     public class Startup
     {
@@ -36,10 +36,10 @@ namespace BeerApi
         {
             
             //DI services
-            services.AddSingleton<BeerService, BeerServiceImpl>();
+            services.AddSingleton<StockService, StockServiceImpl>();
 
             //DI Repos
-            services.AddSingleton<BeerRepository, BeerMongDBRepository>();
+            services.AddSingleton<StockRepository, StockMongoDbRepository>();
 
             services.AddControllersWithViews();
             services.AddControllers();
@@ -88,11 +88,11 @@ namespace BeerApi
         private void ConfigureDataBaseSettings(IServiceCollection services)
         {
             // requires using Microsoft.Extensions.Options
-            services.Configure<BeerstoreDatabaseSettings>(
-                Configuration.GetSection(nameof(BeerstoreDatabaseSettings)));
+            services.Configure<StockstoreDatabaseSettings>(
+                Configuration.GetSection(nameof(StockstoreDatabaseSettings)));
 
-            services.AddSingleton<IBeerstoreDatabaseSettings>(sp =>
-                sp.GetRequiredService<IOptions<BeerstoreDatabaseSettings>>().Value);
+            services.AddSingleton<IStockstoreDatabaseSettings>(sp =>
+                sp.GetRequiredService<IOptions<StockstoreDatabaseSettings>>().Value);
 
             services.AddSwaggerGen();
         }
@@ -147,7 +147,7 @@ namespace BeerApi
             // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "beer-service v" + ThisAssembly.Git.SemVer.Major + "." + ThisAssembly.Git.SemVer.Minor + "." + ThisAssembly.Git.SemVer.Patch);
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "stock-service v" + ThisAssembly.Git.SemVer.Major + "." + ThisAssembly.Git.SemVer.Minor + "." + ThisAssembly.Git.SemVer.Patch);
             });
         }
 

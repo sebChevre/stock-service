@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace BeerApi.Controllers.Response
+namespace StockApi.Controllers.Response
 {
     public class SystemInfo
     {

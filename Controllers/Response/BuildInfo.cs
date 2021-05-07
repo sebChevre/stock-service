@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
  
-namespace BeerApi.Controllers.Response
+namespace StockApi.Controllers.Response
 {
     public class BuildInfo
     {
