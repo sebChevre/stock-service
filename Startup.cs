@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Http;
 using Prometheus;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-
+using StockApi.Infrastructure.Receiving;
 
 
 
@@ -54,6 +54,8 @@ namespace StockApi{
             ConfigureDataBaseSettings(services);
 
             ConfigureAuthentification(services);
+
+            services.AddHostedService<BeerCreatedReceicer>();
 
         }
 
