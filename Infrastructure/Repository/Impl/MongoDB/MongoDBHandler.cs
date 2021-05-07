@@ -4,6 +4,7 @@ using MongoDB.Driver;
 
 using StockApi.Infrastructure.Configuration;
 
+
 namespace StockApi.Infrastructure.MongoDB
 {
     public class MongoDBHandler

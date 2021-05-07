@@ -7,18 +7,23 @@ using StockApi.Services;
 using StockApi.Services.Impl;
 using StockApi.Infrastructure.Configuration;
 using Microsoft.Extensions.Options;
+
 using StockApi.Infrastructure;
 using StockApi.Infrastructure.Impl;
+
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Prometheus;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 
 
 
-namespace StockApi
-{
+
+namespace StockApi{
+
+
     public class Startup
     {
          public IWebHostEnvironment Environment { get; }
@@ -35,11 +40,13 @@ namespace StockApi
         public void ConfigureServices(IServiceCollection services)
         {
             
+
             //DI services
             services.AddSingleton<StockService, StockServiceImpl>();
 
             //DI Repos
             services.AddSingleton<StockRepository, StockMongoDbRepository>();
+
 
             services.AddControllersWithViews();
             services.AddControllers();
@@ -129,12 +136,12 @@ namespace StockApi
             app.UseAuthentication();
             app.UseAuthorization();
 
-           app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
-            });
+            app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapControllerRoute(
+                        name: "default",
+                        pattern: "{controller=Home}/{action=Index}/{id?}");
+                });
 
         }
 
@@ -153,7 +160,7 @@ namespace StockApi
 
         private static void ConfigurePrometheus(IApplicationBuilder app)
         {
-            var counter = Metrics.CreateCounter("pipedream_api_count", "Counts requests to the Pipedream API endpoints", new CounterConfiguration{
+            var counter = Metrics.CreateCounter("call_api_count", "Counts requests to the API endpoints", new CounterConfiguration{
             LabelNames = new[] { "method", "endpoint" }
             });
             
