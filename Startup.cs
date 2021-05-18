@@ -81,11 +81,8 @@ namespace StockApi{
 
                         c.Response.StatusCode = 500;
                         c.Response.ContentType = "text/plain";
-                        if (Environment.IsDevelopment())
-                        {
-                            return c.Response.WriteAsync(c.Exception.ToString());
-                        }
-                        return c.Response.WriteAsync("An error occured processing your authentication.");
+                        
+                        return c.Response.WriteAsync(c.Exception.ToString());
                     }
                 };
             });
