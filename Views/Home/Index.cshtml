@@ -1,8 +1,13 @@
 ﻿@{
     ViewData["Title"] = "Stock Service";
 
-    String env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-    String mongoDbUrl = Environment.GetEnvironmentVariable("MONGODB_URL");
+    string env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+    string mongoDbUrl = Environment.GetEnvironmentVariable("MONGODB_URL");
+    string rabbitMqHost =  Environment.GetEnvironmentVariable("RABBITMQ_HOST");
+    string rabbitMqPort = Environment.GetEnvironmentVariable("RABBITMQ_PORT");
+    string JwtAudience = System.Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+    string JwtAuthority = System.Environment.GetEnvironmentVariable("JWT_AUTHORITY");
+
 }
 
 @section scripts
@@ -71,6 +76,46 @@
         <td scope="row"><em>Indéfini</em></td>
     }else{
         <td scope="row"><em>@mongoDbUrl</em></td>
+    }
+    </tr>
+
+    <tr>
+      <td scope="row"><strong>RABBITMQ_HOST</strong></td>
+      @if (mongoDbUrl == null)
+    {
+        <td scope="row"><em>Indéfini</em></td>
+    }else{
+        <td scope="row"><em>@rabbitMqHost</em></td>
+    }
+    </tr>
+
+    <tr>
+      <td scope="row"><strong>RABBITMQ_PORT</strong></td>
+      @if (mongoDbUrl == null)
+    {
+        <td scope="row"><em>Indéfini</em></td>
+    }else{
+        <td scope="row"><em>@rabbitMqPort</em></td>
+    }
+    </tr>
+
+    <tr>
+      <td scope="row"><strong>JWT_AUDIENCE</strong></td>
+      @if (JwtAudience == null)
+    {
+        <td scope="row"><em>Indéfini</em></td>
+    }else{
+        <td scope="row"><em>@JwtAudience</em></td>
+    }
+    </tr>
+
+    <tr>
+      <td scope="row"><strong>JWT_AUTHORITY</strong></td>
+      @if (JwtAuthority == null)
+    {
+        <td scope="row"><em>Indéfini</em></td>
+    }else{
+        <td scope="row"><em>@JwtAuthority</em></td>
     }
     </tr>
     

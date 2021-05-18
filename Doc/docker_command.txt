@@ -1,16 +1,14 @@
 # reseau
-docker network create StockService-network
-
-# mongo api
-docker run -p 9999:80
-	-e ASPNETCORE_ENVIRONMENT=Production -e MONGODB_URL="mongodb://mongodb:27017" 
-	-e ASPNETCORE_URLS=";http://+" -e ASPNETCORE_HTTPS_PORT=9999 
-	-e ASPNETCORE_Kestrel__Certificates__Default__Password={110978} 
-	-e ASPNETCORE_Kestrel__Certificates__Default__Path=/https/mongodbapi.pfx -v %USERPROFILE%\.aspnet\https:/https/ 
-	--network mongoapi sebchevre/mongoapi:1.3
+docker network create beershop-network
 
 # mongodb	
-docker run -p 27017:27017 --network StockService-network --name mongodb mongo
+docker run --rm -d --name mongodb --network beershop-network -p 27017:27017 mongo
 
-# keycloak
-docker run --name keycloak -p 8080:8080 -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=pass jboss/keycloak
+# keycloak, lancer depuis le répertoire ou est le fichier json du realm
+docker run --rm -d --name keycloak --network beershop-network -p 8080:8080 -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=pass -e KEYCLOAK_IMPORT=/import/beershop-service-realm.json -v ${PWD}:/import jboss/keycloak
+
+# rabbit mq
+docker run --rm -d --name rabbitmq --network beershop-network -p 15672:15672 -p 5672:5672 rabbitmq:3-management
+
+# stockservice
+docker run --rm -d --name stock-service --network beershop-network -e ASPNETCORE_ENVIRONMENT=Production -e MONGODB_URL="mongodb://mongodb:27017" -e ASPNETCORE_URLS=";http://+" -e RABBITMQ_HOST="rabbitmq" -e RABBITMQ_PORT="5672" -e JWT_AUDIENCE=external-client -e JWT_AUTHORITY=http://keycloak:8080/auth/realms/beershop-service -p 9999:80  sebchevre/stock-service:latest

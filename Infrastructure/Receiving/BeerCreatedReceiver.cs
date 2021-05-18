@@ -1,13 +1,17 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
+using StockApi.Infrastructure.MongoDB;
 using Microsoft.Extensions.Hosting;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
 using System;
+using StockApi.Infrastructure.Configuration;
+using MongoDB.Driver;
+using StockApi.Models;
+using System.Text.Json;
+using BeerApi.Services.Event;
 
 namespace StockApi.Infrastructure.Receiving
 {
@@ -16,13 +20,26 @@ namespace StockApi.Infrastructure.Receiving
     {
         private readonly ConnectionFactory _connectionFactory;
 
+        //private readonly StockService _stockService;
+
         private IConnection _connection;
 
+        
         private IModel _channel;
+        private readonly MongoDBHandler _mongoDBHandler;
 
-        public BeerCreatedReceicer(){
-            Console.WriteLine("init");
-            _connectionFactory = new ConnectionFactory() { HostName = "localhost" };
+        private readonly IMongoCollection<Stock> _stocks;
+         string _rabbitMqHost;
+        int _rabbitMqPort;
+
+        public BeerCreatedReceicer(IStockstoreDatabaseSettings settings){
+            
+            _mongoDBHandler = new MongoDBHandler(settings);
+            _stocks =  _mongoDBHandler.GetDataBase().GetCollection<Stock>(settings.StockCollectionName);
+            _rabbitMqHost =  Environment.GetEnvironmentVariable("RABBITMQ_HOST");
+            _rabbitMqPort = Int32.Parse(Environment.GetEnvironmentVariable("RABBITMQ_PORT"));
+
+            _connectionFactory = new ConnectionFactory() { HostName = _rabbitMqHost, Port = _rabbitMqPort };
             InitializeRabbitMqListener();
         }
 
@@ -91,7 +108,7 @@ namespace StockApi.Infrastructure.Receiving
             consumer.Received += (ch, ea) =>
             {
                 var content = Encoding.UTF8.GetString(ea.Body.ToArray());
-                //var msg = JsonConvert.DeserializeObject<UpdateCustomerFullNameModel>(content);
+                
 
                 HandleMessage(content);
 
@@ -109,7 +126,18 @@ namespace StockApi.Infrastructure.Receiving
 
         private void HandleMessage(string msg)
         {
-            Console.WriteLine(msg);
+            
+            BeerCreatedEvent beerCreatedEvent = JsonSerializer.Deserialize<BeerCreatedEvent>(msg);
+            Console.WriteLine(beerCreatedEvent.AsJson());
+
+            Stock stock = new Stock(){
+                BeerId = beerCreatedEvent.BeerId,
+                StockDisponible = 0,
+                StockReserve = 0
+            };
+
+            _stocks.InsertOne(stock);
+           
         }
         private void RabbitMQ_ConnectionShutdown(object sender, ShutdownEventArgs e)
         {

@@ -67,8 +67,11 @@ namespace StockApi{
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(o =>
             {
-                o.Authority = Configuration["Jwt:Authority"];
-                o.Audience = Configuration["Jwt:Audience"];
+                 string JwtAudience = System.Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+                string JwtAuthority = System.Environment.GetEnvironmentVariable("JWT_AUTHORITY");
+
+                o.Authority = JwtAuthority;
+                o.Audience = JwtAudience;
                 o.RequireHttpsMetadata = false;
                 o.Events = new JwtBearerEvents()
                 {
