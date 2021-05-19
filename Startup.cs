@@ -47,7 +47,6 @@ namespace StockApi{
             //DI Repos
             services.AddSingleton<StockRepository, StockMongoDbRepository>();
 
-
             services.AddControllersWithViews();
             services.AddControllers();
 

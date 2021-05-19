@@ -3,7 +3,7 @@ using MongoDB.Driver;
 using System.Collections.Generic;
 using StockApi.Infrastructure.MongoDB;
 using StockApi.Infrastructure.Configuration;
-using MongoDB.Bson;
+using Microsoft.Extensions.Logging;
 
 namespace StockApi.Infrastructure.Impl
 {
@@ -12,9 +12,10 @@ namespace StockApi.Infrastructure.Impl
     {
         private readonly IMongoCollection<Stock> _stocks;
         private readonly MongoDBHandler _mongoDBHandler;
-
-        public StockMongoDbRepository(IStockstoreDatabaseSettings settings){
+        private readonly ILogger<StockMongoDbRepository> _logger;
+        public StockMongoDbRepository(ILogger<StockMongoDbRepository> logger,IStockstoreDatabaseSettings settings){
             _mongoDBHandler = new MongoDBHandler(settings);
+            _logger = logger;
 
              _stocks =  _mongoDBHandler.GetDataBase().GetCollection<Stock>(settings.StockCollectionName);
         }
@@ -28,8 +29,19 @@ namespace StockApi.Infrastructure.Impl
         Stock StockRepository.CreateStock(Stock stock)
         {
            
+            var filter = Builders<Stock>.Filter.Eq("BeerId", stock.BeerId);
+            
+            var isBeerAlreadyPresent = _stocks.Find(filter).FirstOrDefault();
 
-            _stocks.InsertOne(stock);
+            if(isBeerAlreadyPresent != null){
+                _logger.LogWarning("Stock already present for beer: {}",stock.BeerId);
+                throw new System.Exception("Stock already exist for beer: " + stock.BeerId);
+
+            }else{
+                _stocks.InsertOne(stock); 
+                _logger.LogInformation("Stock inserted for beer: {0}",stock.BeerId);
+            }
+            
             return stock;
         }
 

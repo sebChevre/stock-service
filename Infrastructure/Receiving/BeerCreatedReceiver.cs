@@ -12,6 +12,8 @@ using MongoDB.Driver;
 using StockApi.Models;
 using System.Text.Json;
 using BeerApi.Services.Event;
+using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 
 namespace StockApi.Infrastructure.Receiving
 {
@@ -28,16 +30,20 @@ namespace StockApi.Infrastructure.Receiving
         private IModel _channel;
         private readonly MongoDBHandler _mongoDBHandler;
 
-        private readonly IMongoCollection<Stock> _stocks;
+        //private readonly IMongoCollection<Stock> _stocks;
          string _rabbitMqHost;
         int _rabbitMqPort;
+        private readonly ILogger<BeerCreatedReceicer> _logger;
 
-        public BeerCreatedReceicer(IStockstoreDatabaseSettings settings){
+        private StockRepository _stockRepository;
+
+        public BeerCreatedReceicer(StockRepository stockRepository, IStockstoreDatabaseSettings settings,ILogger<BeerCreatedReceicer> logger){
             
             _mongoDBHandler = new MongoDBHandler(settings);
-            _stocks =  _mongoDBHandler.GetDataBase().GetCollection<Stock>(settings.StockCollectionName);
+            _stockRepository = stockRepository;
             _rabbitMqHost =  Environment.GetEnvironmentVariable("RABBITMQ_HOST");
             _rabbitMqPort = Int32.Parse(Environment.GetEnvironmentVariable("RABBITMQ_PORT"));
+            _logger = logger;
 
             _connectionFactory = new ConnectionFactory() { HostName = _rabbitMqHost, Port = _rabbitMqPort };
             InitializeRabbitMqListener();
@@ -49,7 +55,12 @@ namespace StockApi.Infrastructure.Receiving
             _connection = _connectionFactory.CreateConnection();
             _connection.ConnectionShutdown += RabbitMQ_ConnectionShutdown;
             _channel = _connection.CreateModel();
-            _channel.QueueDeclare(queue: "hello", durable: false, exclusive: false, autoDelete: false, arguments: null);
+            _channel.QueueDeclare(
+                queue: MessagingConfig.BeerCreatedQueueName, 
+                durable: false, 
+                exclusive: false, 
+                autoDelete: false, 
+                arguments: null);
             
         }
 
@@ -119,7 +130,7 @@ namespace StockApi.Infrastructure.Receiving
             consumer.Unregistered += OnConsumerUnregistered;
             consumer.ConsumerCancelled += OnConsumerCancelled;
 
-            _channel.BasicConsume("hello", false, consumer);
+            _channel.BasicConsume(MessagingConfig.BeerCreatedQueueName, false, consumer);
 
             return Task.CompletedTask;
         }
@@ -128,7 +139,7 @@ namespace StockApi.Infrastructure.Receiving
         {
             
             BeerCreatedEvent beerCreatedEvent = JsonSerializer.Deserialize<BeerCreatedEvent>(msg);
-            Console.WriteLine(beerCreatedEvent.AsJson());
+            _logger.LogInformation("Message received: {0}",beerCreatedEvent.AsJson());
 
             Stock stock = new Stock(){
                 BeerId = beerCreatedEvent.BeerId,
@@ -136,7 +147,8 @@ namespace StockApi.Infrastructure.Receiving
                 StockReserve = 0
             };
 
-            _stocks.InsertOne(stock);
+            _stockRepository.CreateStock(stock);
+
            
         }
         private void RabbitMQ_ConnectionShutdown(object sender, ShutdownEventArgs e)
