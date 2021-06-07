@@ -43,9 +43,16 @@ namespace StockApi.Infrastructure.Receiving
             _stockRepository = stockRepository;
             _rabbitMqHost =  Environment.GetEnvironmentVariable("RABBITMQ_HOST");
             _rabbitMqPort = Int32.Parse(Environment.GetEnvironmentVariable("RABBITMQ_PORT"));
+            var rbUserName =  Environment.GetEnvironmentVariable("RABBITMQ_USERNAME");
+            var rbPassword = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD");
             _logger = logger;
 
-            _connectionFactory = new ConnectionFactory() { HostName = _rabbitMqHost, Port = _rabbitMqPort };
+            _connectionFactory = new ConnectionFactory() { 
+                HostName = _rabbitMqHost, 
+                Port = _rabbitMqPort,
+                UserName = rbUserName, 
+                Password = rbPassword };
+
             InitializeRabbitMqListener();
         }
 
