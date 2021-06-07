@@ -18,9 +18,14 @@ namespace StockApi.Infrastructure.MongoDB
         public MongoDBHandler(IStockstoreDatabaseSettings settings)
         {
             _mongoUrl =  Environment.GetEnvironmentVariable("MONGODB_URL");
+
+            var mongoUsername =  Environment.GetEnvironmentVariable("MONGODB_USERNAME");
+            var mongoPass =  Environment.GetEnvironmentVariable("MONGODB_PASS");
+
+            var connectionString = String.Format("mongodb://{0}:{1}@{2}",mongoUsername,mongoPass,_mongoUrl);
             
             if(_mongoUrl != null){
-                _client = new MongoClient(_mongoUrl);
+                _client = new MongoClient(connectionString);
                 _settings = settings;
                 _dataBase = _client.GetDatabase(settings.DatabaseName);
             }
